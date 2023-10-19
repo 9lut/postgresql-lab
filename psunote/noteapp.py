@@ -3,6 +3,8 @@ import flask
 import models
 import forms
 
+from datetime import datetime
+
 
 app = flask.Flask(__name__)
 app.config["SECRET_KEY"] = "This is secret key"
@@ -69,14 +71,26 @@ def notes_edit(note_id):
         return flask.abort(404)  # แสดงหน้า 404 หากไม่พบโน๊ตที่ต้องการแก้ไข
 
     form = forms.NoteForm(obj=note)
-    
+
     if form.validate_on_submit():
-        form.populate_obj(note)
+        note.title = flask.request.form["title"]
+        note.description = flask.request.form["description"]
+        note.updateed_date = datetime.now()
         db.session.commit()
         return flask.redirect(flask.url_for("index"))
 
     return flask.render_template("notes-edit.html", form=form, note=note)
 
+@app.route("/notes/delete/<int:note_id>")
+def notes_delete(note_id):
+    db = models.db
+    note = db.session.query(models.Note).get(note_id)
+    if not note:
+        return "Note not found", 404
+
+    db.session.delete(note)
+    db.session.commit()
+    return flask.redirect(flask.url_for("index"))
 
 @app.route("/tags/<tag_name>")
 def tags_view(tag_name):
@@ -95,7 +109,6 @@ def tags_view(tag_name):
         tag_name=tag_name,
         notes=notes,
     )
-
 
 if __name__ == "__main__":
     app.run(debug=True)
