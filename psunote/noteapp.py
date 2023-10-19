@@ -24,7 +24,6 @@ def index():
         notes=notes,
     )
 
-
 @app.route("/notes/create", methods=["GET", "POST"])
 def notes_create():
     form = forms.NoteForm()
@@ -56,6 +55,27 @@ def notes_create():
     db.session.commit()
 
     return flask.redirect(flask.url_for("index"))
+
+@app.route("/notes/edit/<int:note_id>", methods=["GET", "POST"])
+def notes_edit(note_id):
+    db = models.db
+    note = (
+        db.session.execute(db.select(models.Note).where(models.Note.id == note_id))
+        .scalars()
+        .first()
+    )
+    
+    if not note:
+        return flask.abort(404)  # แสดงหน้า 404 หากไม่พบโน๊ตที่ต้องการแก้ไข
+
+    form = forms.NoteForm(obj=note)
+    
+    if form.validate_on_submit():
+        form.populate_obj(note)
+        db.session.commit()
+        return flask.redirect(flask.url_for("index"))
+
+    return flask.render_template("notes-edit.html", form=form, note=note)
 
 
 @app.route("/tags/<tag_name>")
