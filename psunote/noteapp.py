@@ -26,6 +26,7 @@ def index():
         notes=notes,
     )
 
+#เป็นฟังก์ชันการสร้างโน๊ต
 @app.route("/notes/create", methods=["GET", "POST"])
 def notes_create():
     form = forms.NoteForm()
@@ -58,6 +59,7 @@ def notes_create():
 
     return flask.redirect(flask.url_for("index"))
 
+#เป็นฟังก์ชันการแก้ไขโน๊ต
 @app.route("/notes/edit/<int:note_id>", methods=["GET", "POST"])
 def notes_edit(note_id):
     db = models.db
@@ -81,6 +83,7 @@ def notes_edit(note_id):
 
     return flask.render_template("notes-edit.html", form=form, note=note)
 
+#เป็นฟังก์ชันการลบโน๊ต
 @app.route("/notes/delete/<int:note_id>")
 def notes_delete(note_id):
     db = models.db
@@ -109,7 +112,8 @@ def tags_view(tag_name):
         tag_name=tag_name,
         notes=notes,
     )
-
+    
+#เป็นฟังก์ชันการแก้ไข Tags  
 @app.route("/tags/edit/<int:tag_id>", methods=["GET", "POST"])
 def tags_edit(tag_id):
     db = models.db
@@ -129,6 +133,28 @@ def tags_edit(tag_id):
         return flask.redirect(flask.url_for("index"))
    
     return flask.render_template("tags-edit.html", form=form, tag=tag)
+
+#เป็นฟังก์ชันการลบ Tags  
+@app.route("/tags/delete/<int:tag_id>", methods=["GET", "POST"])
+def tags_delete(tag_id):
+    db = models.db
+    tag = db.session.query(models.Tag).get(tag_id)
+
+    if not tag:
+        return "Tag not found", 404
+
+    form = forms.TagForm(obj=tag)
+    if flask.request.method == "POST":
+        tag.name = flask.request.form["name"]
+        related_notes = db.session.query(models.Note).filter(models.Note.tags.any(id=tag_id)).all()
+        for note in related_notes:
+            note.tags.remove(tag)
+
+        db.session.delete(tag)  
+        db.session.commit()  
+        return flask.redirect(flask.url_for("index"))
+
+    return flask.render_template("tags-dalete.html", tag=tag, form=form)
 
 if __name__ == "__main__":
     app.run(debug=True)

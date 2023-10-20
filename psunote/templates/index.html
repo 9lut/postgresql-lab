@@ -8,8 +8,10 @@
 {% for note in notes %}
 <div class="card my-3">
   <div class="card-body">
-    <a class="btn btn-primary" href="{{ url_for('notes_edit', note_id=note.id) }}">แก้ไข</a>
-    <a href="{{ url_for('notes_delete', note_id=note.id) }}" class="btn btn-danger" onclick="return confirm('คุณต้องการลบโน๊ตนี้หรือไม่?')">ลบ</a>
+    <div class="d-flex justify-content-end">
+      <a href="{{ url_for('notes_edit', note_id=note.id) }}" class="btn btn-primary">แก้ไข</a>
+      <a href="{{ url_for('notes_delete', note_id=note.id) }}" class="btn btn-danger" onclick="return confirm('คุณต้องการลบโน๊ตนี้หรือไม่?')">ลบ</a>
+    </div>
     <h4 class="card-title">{{ note.title }}</h4>
     <div class="card-text my-3">
       {{ note.description }}
@@ -18,8 +20,8 @@
       Tags: 
       {% for t in note.tags %}
         <a href="{{ url_for('tags_view', tag_name=t.name) }}">{{ t.name }}</a>
-        <a class="btn" href="{{ url_for('tags_edit', tag_id=t.id) }}" style="background-color: #ff9900; color: #fff;">แก้ไข</a>
-
+        <a class="btn" href="{{ url_for('tags_edit', tag_id=t.id) }}" style="background-color: #ff9900; color: #fff;">แก้ไข tag</a>
+        <a class="btn btn-danger" href="{{ url_for('tags_delete', tag_id=t.id) }}"> ลบ Tag </a>
       {% endfor %}
       <br>
       Last update: {{ note.updated_date }}
