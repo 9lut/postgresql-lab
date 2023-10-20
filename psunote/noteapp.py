@@ -110,5 +110,27 @@ def tags_view(tag_name):
         notes=notes,
     )
 
+@app.route("/tags/edit/<int:tag_id>", methods=["GET", "POST"])
+def tags_edit(tag_id):
+    db = models.db
+    tag = db.session.query(models.Tag).get(tag_id)
+
+    if not tag:
+        return flask.abort(404)  # แสดงหน้า 404 หากไม่พบโน๊ตที่ต้องการแก้ไข
+
+    form = forms.TagForm(obj=tag)
+    if flask.request.method == "POST":
+        tagname = form.name.data
+        
+        tag.name = tagname
+        
+        db.session.commit()
+        
+        return flask.redirect(flask.url_for("index"))
+   
+    return flask.render_template("tags-edit.html", form=form, tag=tag)
+
 if __name__ == "__main__":
     app.run(debug=True)
+
+    

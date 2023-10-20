@@ -18,6 +18,8 @@
       Tags: 
       {% for t in note.tags %}
         <a href="{{ url_for('tags_view', tag_name=t.name) }}">{{ t.name }}</a>
+        <a class="btn" href="{{ url_for('tags_edit', tag_id=t.id) }}" style="background-color: #ff9900; color: #fff;">แก้ไข</a>
+
       {% endfor %}
       <br>
       Last update: {{ note.updated_date }}
